@@ -41,8 +41,130 @@ object Sort {
   }
 
 
+  /**
+    * 解决上面的slice问题
+    *
+    * @param nums
+    * @return
+    */
   def mergeSort(nums: Array[Int]): Array[Int] = {
-    ???
+
+    def mergeSortRecursive(arr: Array[Int], start: Int, end: Int): Array[Int] = {
+      if (arr.isEmpty) return Array.empty
+
+      // 基本条件(存在0个元素 和 1个元素 两种基本情形)
+      if (start == end) return Array(arr(start))
+
+      // 算法步骤
+      val middle = (start + end) / 2
+
+      val startLeft = start
+      val endLeft = middle
+      val startRight = middle+1
+      val endRight = end
+
+      val left = mergeSortRecursive(arr, startLeft, endLeft)
+      val right = mergeSortRecursive(arr, startRight, endRight)
+
+
+      // merge sorted array: left & right
+      val len = end - start + 1
+      val lenLeft = endLeft - startLeft + 1
+      val lenRight = endRight - startRight + 1
+      val result = new Array[Int](len)
+      var (i, j, k) = (0, 0, 0)
+      while (i < lenLeft && j < lenRight) {
+        if (left(i) < right(j)) {
+          result(k) = left(i)
+          i += 1
+        } else {
+          result(k) = right(j)
+          j += 1
+        }
+        k += 1
+      }
+      while (i < lenLeft) {
+        result(k) = left(i)
+        i += 1
+        k += 1
+      }
+      while (j < lenRight) {
+        result(k) = right(j)
+        j += 1
+        k += 1
+      }
+      result
+    }
+
+    mergeSortRecursive(nums, 0, nums.length-1)
+  }
+
+
+  def mergeSort2(nums: Array[Int]): Array[Int] = {
+
+    /**
+      * 这个方法由于会修改"输入的数组" arr. 使用时,最后clone一下.
+      *
+      * 这个版本的实现,空间上会省一点.
+      * 参考: https://zh.wikipedia.org/zh-hans/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F
+      *
+      * @param arr
+      * @param result
+      * @param start
+      * @param end
+      */
+    def mergeSortRecursive(arr: Array[Int], result: Array[Int], start: Int, end: Int): Unit = {
+      // 基本条件(存在0个元素 和 1个元素 两种基本情形)
+      if (start == end) {
+        return
+      }
+
+      // 算法步骤
+      val middle = (start + end) / 2
+
+      val startLeft = start
+      val endLeft = middle
+      val startRight = middle+1
+      val endRight = end
+
+      mergeSortRecursive(arr, result, startLeft, endLeft)
+      mergeSortRecursive(arr, result, startRight, endRight)
+
+      // merge sorted array: left & right
+      var (i, j, k) = (startLeft, startRight, start)
+      while (i <= endLeft && j <= endRight) {
+        if (arr(i) < arr(j)) {
+          result(k) = arr(i)
+          i += 1
+        } else {
+          result(k) = arr(j)
+          j += 1
+        }
+        k += 1
+      }
+      while (i <= endLeft) {
+        result(k) = arr(i)
+        i += 1
+        k += 1
+      }
+      while (j <= endRight) {
+        result(k) = arr(j)
+        j += 1
+        k += 1
+      }
+
+      // 合并时,result归并的结果写入arr, 这样递归时,arr的值才能保存中间的计算结果
+      var o = start
+      while (o <= end) {
+        arr(o) = result(o)
+        o += 1
+      }
+    }
+
+    val clone = nums.clone()
+    val result = new Array[Int](nums.length)
+    mergeSortRecursive(clone, result, 0, nums.length - 1)
+    result
   }
 
 
@@ -128,6 +250,9 @@ object Sort {
     println("BubbleSort: \t" + bubbleSort(arr).mkString(","))
     println("QuickSort: \t\t" + quickSort(arr).mkString(","))
     println("QuickSort2: \t" + quickSort2(arr).mkString(","))
-    println("MergeSort: \t\t" + mergeSortBad(arr).mkString(","))
+    println("MergeSortBad: \t" + mergeSortBad(arr).mkString(","))
+    println("MergeSort: \t\t" + mergeSort(arr).mkString(","))
+    println("MergeSort2: \t" + mergeSort2(arr).mkString(","))
+    println("Origin: \t\t" + arr.mkString(","))
   }
 }
