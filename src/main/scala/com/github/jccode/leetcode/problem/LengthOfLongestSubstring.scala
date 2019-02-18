@@ -106,10 +106,71 @@ object LengthOfLongestSubstring {
     result
   }
 
+
+  /**
+    * 滑动窗口解法.
+    *
+    * 滑动窗口 [i, j), 向右滑动.
+    *
+    * @param s
+    * @return
+    */
+  def lengthOfLongestSubstring3(s: String): Int = {
+    import scala.collection.mutable
+    var (i, j, result) = (0, 0, 0)   // 滑动窗口下标
+    val set = mutable.Set.empty[Int]  // 存放滑动窗口中的元素
+    while (i < s.length && j < s.length) {
+      if (!set.contains(s(j))) {
+        set += s(j)
+        result = Math.max(result, j - i + 1)
+        j += 1
+      } else {
+        set -= s(i)
+        i += 1
+      }
+    }
+
+    result
+  }
+
+
+  /**
+    * 优化的滑动窗口. [i,j)
+    *
+    * i 不需要每次一位位地移.
+    * 使用map记录重复数据的下标, 发现重复, 取出重复元素的下标, 跳到其下一位.
+    *
+    * @param s
+    * @return
+    */
+  def lengthOfLongestSubstring4(s: String): Int = {
+    import scala.collection.mutable
+    var (i, j, result) = (0, 0, 0)
+    val map = mutable.Map.empty[Char, Int]
+    while (i < s.length && j < s.length) {
+      if (!map.contains(s(j))) {
+        map += (s(j) -> j)
+      } else {
+        i = Math.max(map(s(j)) + 1, i) // 这个地方,有可能取出来的下标比当前i的值还小,这种情况下,不能往回跳.
+        map(s(j)) = j
+      }
+      j += 1
+      result = Math.max(result, j - i)
+    }
+    result
+  }
+
+
   def main(args: Array[String]): Unit = {
-    val samples = List("abcabcbb", "bbbbb", "pwwkew", " ", "  ", "a", "aa", "dvdf", "abba", "bbtablud")
+    lengthOfLongestSubstring4("tmmzuxt")
+
+    val samples = List("abcabcbb", "bbbbb", "pwwkew", " ", "  ", "a", "aa", "dvdf", "abba", "bbtablud", "tmmzuxt")
     samples.map(lengthOfLongestSubstring).foreach(print)
     println()
     samples.map(lengthOfLongestSubstring2).foreach(print)
+    println()
+    samples.map(lengthOfLongestSubstring3).foreach(print)
+    println()
+    samples.map(lengthOfLongestSubstring4).foreach(print)
   }
 }
