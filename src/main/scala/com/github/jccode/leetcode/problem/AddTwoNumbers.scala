@@ -1,5 +1,7 @@
 package com.github.jccode.leetcode.problem
 
+import scala.annotation.tailrec
+
 object AddTwoNumbers {
 
   class ListNode(var _x: Int = 0) {
@@ -37,6 +39,37 @@ object AddTwoNumbers {
   }
 
 
+  def addTwoNumbersRecursive(l1: ListNode, l2: ListNode): ListNode = {
+    def addTwoNumbersRecursive_(l1: ListNode, l2: ListNode, carry: Int = 0): ListNode = {
+      if (l1 == null && l2 == null && carry == 0) return null
+      val empty = ListNode(0)
+      val n1 = if (l1 != null) l1 else empty
+      val n2 = if (l2 != null) l2 else empty
+      val rn = ListNode((n1.x + n2.x + carry) % 10)
+      rn.next = addTwoNumbersRecursive_(n1.next, n2.next, (n1.x + n2.x + carry) / 10)
+      rn
+    }
+
+    addTwoNumbersRecursive_(l1, l2)
+  }
+
+  def addTwoNumbersRecursiveTail(l1: ListNode, l2: ListNode): ListNode = {
+    @tailrec
+    def addTwoNumbersRecursiveTail_(l1: ListNode, l2: ListNode, result: ListNode, carry: Int = 0): Unit = {
+      if (l1 == null && l2 == null && carry == 0) return
+      val empty = ListNode(0)
+      val n1 = if (l1 != null) l1 else empty
+      val n2 = if (l2 != null) l2 else empty
+      result.next = ListNode((n1.x + n2.x + carry) % 10)
+      addTwoNumbersRecursiveTail_(n1.next, n2.next, result.next, (n1.x + n2.x + carry) / 10)
+    }
+
+    val dummyHead = ListNode(0)
+    addTwoNumbersRecursiveTail_(l1, l2, dummyHead)
+    dummyHead.next
+  }
+
+
   def createListNode(x: Int): ListNode = {
     if (x < 10) return ListNode(x)
 
@@ -49,6 +82,28 @@ object AddTwoNumbers {
       t = t / 10
     }
     result
+  }
+
+  def createListNodeRecursive(x: Int): ListNode = {
+    // 基本情况
+    if (x == 0) return null
+    val n = ListNode(x % 10)
+    n.next = createListNodeRecursive(x / 10)
+    n
+  }
+
+  def createListNodeRecursiveTail(x: Int): ListNode = {
+    @tailrec
+    def createListNodeRecursiveTail_(x: Int, list: ListNode): Unit = {
+      if (x == 0) return
+      val n = ListNode(x % 10)
+      list.next = n
+      createListNodeRecursiveTail_(x / 10, list.next)
+    }
+
+    val dummyHead = new ListNode()
+    createListNodeRecursiveTail_(x, dummyHead)
+    dummyHead.next
   }
 
 
@@ -82,10 +137,26 @@ object AddTwoNumbers {
     val l1 = createListNode(342)
     val l2 = createListNode(465)
     val l3 = addTwoNumbers(l1, l2)
-    List(l1, l2, l3).foreach(println)
+    val l32 = addTwoNumbersRecursive(l1, l2)
+    val l33 = addTwoNumbersRecursiveTail(l1, l2)
+    List(l1, l2, l3, l32, l33).foreach(println)
+    println("---------------------")
 
     val l4 = createListNode(5)
     val l5 = addTwoNumbers(l4, l4)
-    List(l4, l5).foreach(println)
+    val l52 = addTwoNumbersRecursive(l4, l4)
+    val l53 = addTwoNumbersRecursiveTail(l4, l4)
+    List(l4, l5, l52, l53).foreach(println)
+    println("---------------------")
+
+    List(
+      createListNode(342),
+      createListNodeRecursive(342),
+      createListNodeRecursiveTail(342),
+      createListNode(465),
+      createListNodeRecursive(465),
+      createListNodeRecursiveTail(465)
+    ).foreach(println)
+
   }
 }
